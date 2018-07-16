@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.1.0</Version>
+    <Authors>Velddev</Authors>
+    <Product />
+    <Description>Very simple cache abstraction layer</Description>
+    <RepositoryUrl>https://github.com/mikibot/miki.cache</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>cache, abstraction, layer</PackageTags>
+    <Copyright>https://github.com/mikibot/miki.cache/LICENSE</Copyright>
+    <PackageProjectUrl>https://github.com/mikibot/miki.cache</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+</Project>
