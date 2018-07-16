@@ -6,14 +6,12 @@
     <Authors>Velddev</Authors>
     <Company>Velddev</Company>
     <Description>StackExchange.Redis Implementation</Description>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Miki.Cache" Version="0.1.1" />
     <PackageReference Include="StackExchange.Redis.StrongName" Version="1.2.6" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Miki.Cache\Miki.Cache.csproj" />
   </ItemGroup>
 
 </Project>
