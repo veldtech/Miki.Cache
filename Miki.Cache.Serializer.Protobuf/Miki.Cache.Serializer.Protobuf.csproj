@@ -6,11 +6,11 @@
     <Company>Velddev</Company>
     <Description>Profocol buffer implementation for Miki.Cache</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Miki.Cache" Version="0.1.1" />
+    <PackageReference Include="Miki.Cache" Version="0.3.0" />
     <PackageReference Include="protobuf-net" Version="2.3.13" />
   </ItemGroup>
 

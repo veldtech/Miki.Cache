@@ -9,23 +9,28 @@ namespace Miki.Cache.StackExchange
 	{
 		public IConnectionMultiplexer Client { get; private set; }
 
-		private ISerializer serializer;
+		private IDatabase _database;
+		private ISerializer _serializer;
 
 		public StackExchangeCacheClient(ISerializer serializer, IConnectionMultiplexer connectionMultiplexer)
 		{
 			Client = connectionMultiplexer;
-			this.serializer = serializer;
+			_serializer = serializer;
+			_database = Client.GetDatabase();
+		}
+
+		public async Task<bool> ExistsAsync(string key)
+		{
+			return await _database.KeyExistsAsync(key);
 		}
 
 		public async Task<T> GetAsync<T>(string key)
 		{
-			IDatabase database = Client.GetDatabase();
-
-			var result = await database.StringGetAsync(key);
+			var result = await _database.StringGetAsync(key);
 
 			if (result.HasValue)
 			{
-				return serializer.Deserialize<T>(result);
+				return _serializer.Deserialize<T>(result);
 			}
 
 			return default(T);
@@ -33,16 +38,15 @@ namespace Miki.Cache.StackExchange
 
 		public async Task RemoveAsync(string key)
 		{
-			IDatabase database = Client.GetDatabase();
-			await database.KeyDeleteAsync(key);
+			await _database.KeyDeleteAsync(key);
 		}
 
-		public async Task UpsertAsync<T>(string key, T value)
+		public async Task UpsertAsync<T>(string key, T value, TimeSpan? expiresIn = null)
 		{
-			IDatabase database = Client.GetDatabase();
-			await database.StringSetAsync(
+			await _database.StringSetAsync(
 				key,
-				serializer.Serialize<T>(value)
+				_serializer.Serialize<T>(value),
+				expiresIn
 			);
 		}
 	}
