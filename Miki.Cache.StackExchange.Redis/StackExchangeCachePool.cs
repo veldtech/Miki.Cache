@@ -22,6 +22,10 @@ namespace Miki.Cache.StackExchange
 				return new StackExchangeCacheClient(serializer, ConnectionMultiplexer.Connect(configuration));
 			});
 		}
+		public StackExchangeCachePool(ISerializer serializer, string configuration)
+			: this(serializer, ConfigurationOptions.Parse(configuration))	
+		{
+		}
 
 		public ICacheClient Get => factory.Value;
 	}
