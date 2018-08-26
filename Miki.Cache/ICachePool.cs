@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Miki.Cache
 {
     public interface ICachePool
     {
-		ICacheClient Get { get; }
+		Task<ICacheClient> GetAsync();
     }
 }

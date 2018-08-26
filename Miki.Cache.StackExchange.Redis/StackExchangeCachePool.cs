@@ -1,7 +1,9 @@
-﻿using StackExchange.Redis;
+﻿using Miki.Serialization;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Miki.Cache.StackExchange
 {
@@ -10,16 +12,20 @@ namespace Miki.Cache.StackExchange
 		private readonly ConfigurationOptions _configuration;
 		private readonly ISerializer _serializer;
 
-		private Lazy<ICacheClient> factory;
+		private Lazy<Task<ICacheClient>> factory;
 
 		public StackExchangeCachePool(ISerializer serializer, ConfigurationOptions configuration)
 		{
 			_configuration = configuration;
 			_serializer = serializer;
 
-			factory = new Lazy<ICacheClient>(() =>
+			factory = new Lazy<Task<ICacheClient>>(async () =>
 			{
-				return new StackExchangeCacheClient(serializer, ConnectionMultiplexer.Connect(configuration));
+				return await Task.Run(async () =>
+				{
+					var connection = await ConnectionMultiplexer.ConnectAsync(configuration);
+					return new StackExchangeCacheClient(serializer, connection);
+				});
 			});
 		}
 		public StackExchangeCachePool(ISerializer serializer, string configuration)
@@ -27,6 +33,9 @@ namespace Miki.Cache.StackExchange
 		{
 		}
 
-		public ICacheClient Get => factory.Value;
+		public async Task<ICacheClient> GetAsync()
+		{
+			return await factory.Value;
+		}
 	}
 }

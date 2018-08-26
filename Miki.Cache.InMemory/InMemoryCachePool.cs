@@ -1,12 +1,25 @@
-﻿using System;
+﻿using Miki.Serialization;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Miki.Cache.InMemory
 {
 	public class InMemoryCachePool : ICachePool
 	{
-		private Dictionary<string, byte[]> _cache = new Dictionary<string, byte[]>();
+		private readonly ConcurrentDictionary<string, byte[]> _cache = new ConcurrentDictionary<string, byte[]>();
+		private readonly ISerializer _serializer;
 
-		public ICacheClient Get => throw new NotImplementedException();
+		public InMemoryCachePool(ISerializer serializer)
+		{
+			_serializer = serializer;
+		}
+
+		public async Task<ICacheClient> GetAsync()
+		{
+			await Task.Yield();
+			return new InMemoryCacheClient(_cache, _serializer);
+		}
 	}
 }

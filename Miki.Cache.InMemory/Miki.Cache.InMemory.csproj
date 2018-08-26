@@ -2,10 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Velddev</Authors>
+    <Description>In-Memory cache clients.</Description>
+    <PackageReleaseNotes>Initial release: big warning, these are working, but not recommended to use in production.</PackageReleaseNotes>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Miki.Cache" Version="0.3.0" />
+    <PackageReference Include="Miki.Cache" Version="1.0.1" />
+    <PackageReference Include="Miki.Serialization" Version="0.1.0" />
   </ItemGroup>
 
 </Project>
