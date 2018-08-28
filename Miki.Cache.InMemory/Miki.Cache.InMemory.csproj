@@ -10,8 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Miki.Cache" Version="1.0.1" />
     <PackageReference Include="Miki.Serialization" Version="0.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Miki.Cache\Miki.Cache.csproj" />
   </ItemGroup>
 
 </Project>

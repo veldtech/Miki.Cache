@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Miki.Cache.InMemory
 {
-	public class InMemoryCacheClient : ICacheClient
+	public class InMemoryCacheClient : IExtendedCacheClient
 	{
 		private ConcurrentDictionary<string, byte[]> _dictionary;
 		private ISerializer _serializer;
@@ -60,6 +60,66 @@ namespace Miki.Cache.InMemory
 			return t;
 		}
 
+		public Task HashDeleteAsync(string key, string hashKey)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task HashDeleteAsync(string key, string[] hashKeys)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<bool> HashExistsAsync(string key, string hashKey)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<long> HashExistsAsync(string key, string[] hashKeys)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<KeyValuePair<string, T>[]> HashGetAllAsync<T>(string key)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<T> HashGetAsync<T>(string key, string hashKey)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<T> HashGetAsync<T>(string key, string[] hashKeys)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<string[]> HashKeysAsync(string key)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<long> HashLengthAsync(string key)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task HashUpsertAsync<T>(string key, string hashKey, T value)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task HashUpsertAsync<T>(string key, KeyValuePair<string, T>[] values)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<T[]> HashValuesAsync<T>(string key)
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task RemoveAsync(string key)
 		{
 			if(await ExistsAsync(key))
@@ -86,6 +146,11 @@ namespace Miki.Cache.InMemory
 			{
 				await UpsertAsync(i.Key, i.Value);
 			}
+		}
+
+		Task<T[]> IExtendedCacheClient.HashGetAsync<T>(string key, string[] hashKeys)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Miki.Cache.StackExchange
 {
-	public class StackExchangeCacheClient : ICacheClient
+	public class StackExchangeCacheClient : IExtendedCacheClient
 	{
 		public IConnectionMultiplexer Client { get; private set; }
 
@@ -28,9 +28,9 @@ namespace Miki.Cache.StackExchange
 		}
 		public async Task<long> ExistsAsync(string[] keys)
 		{
-			return await _database.KeyExistsAsync(FromStringArray(keys));
+			return await _database.KeyExistsAsync(Array.ConvertAll(keys, (x => (RedisKey)x)));
 		}
-
+			 
 		public async Task<T> GetAsync<T>(string key)
 		{
 			var result = await _database.StringGetAsync(key);
@@ -44,7 +44,7 @@ namespace Miki.Cache.StackExchange
 		}
 		public async Task<T[]> GetAsync<T>(string[] keys)
 		{
-			var result = await _database.StringGetAsync(FromStringArray(keys));
+			var result = await _database.StringGetAsync(Array.ConvertAll(keys, (x => (RedisKey)x)));
 			T[] results = new T[keys.Length];
 
 			for (int i = 0; i < keys.Length; i++)
@@ -62,13 +62,93 @@ namespace Miki.Cache.StackExchange
 			return results;
 		}
 
+		public async Task HashDeleteAsync(string key, string hashKey)
+		{
+			await _database.HashDeleteAsync(key, hashKey);
+		}
+		public async Task HashDeleteAsync(string key, string[] hashKeys)
+		{
+			await _database.HashDeleteAsync(key, ToRedisValues(hashKeys));
+		}
+
+		public async Task<bool> HashExistsAsync(string key, string hashKey)
+		{
+			return await _database.HashExistsAsync(key, hashKey);
+		}
+		public async Task<long> HashExistsAsync(string key, string[] hashKeys)
+		{
+			return (await HashKeysAsync(key)).Count(x => x != null);
+		}
+
+		public async Task<T> HashGetAsync<T>(string key, string hashKey)
+		{
+			return _serializer.Deserialize<T>(await _database.HashGetAsync(key, hashKey));
+		}
+		public async Task<T[]> HashGetAsync<T>(string key, string[] hashKeys)
+		{
+			RedisValue[] values = await _database.HashGetAsync(
+				key, ToRedisValues(hashKeys)
+			);
+
+			T[] output = new T[values.Length];
+
+			for (int i = 0; i < values.Length; i++)
+			{
+				output[i] = _serializer.Deserialize<T>(values[i]);
+			}
+
+			return output;
+		}
+
+		public async Task<string[]> HashKeysAsync(string key)
+		{
+			return ToStringArray(await _database.HashKeysAsync(key));
+		}
+
+		public async Task<long> HashLengthAsync(string key)
+		{
+			return await _database.HashLengthAsync(key);
+		}
+
+		public async Task<T[]> HashValuesAsync<T>(string key)
+		{
+			var items = await _database.HashValuesAsync(key);
+
+			return items
+				.Select(x => _serializer.Deserialize<T>(x))
+				.ToArray();
+		}
+
+		public async Task<KeyValuePair<string, T>[]> HashGetAllAsync<T>(string key)
+		{
+			var items = await _database.HashGetAllAsync(key);
+			return items
+				.Select(x =>  new KeyValuePair<string, T>(x.Name, _serializer.Deserialize<T>(x.Value)))
+				.ToArray();
+		}
+
+		public async Task HashUpsertAsync<T>(string key, string hashKey, T value)
+		{
+			await _database.HashSetAsync(key, hashKey, _serializer.Serialize<T>(value));
+		}
+		public async Task HashUpsertAsync<T>(string key, KeyValuePair<string, T>[] values)
+		{
+			await _database.HashSetAsync(
+				key,
+				Array.ConvertAll(
+					values,
+					x => (HashEntry)new KeyValuePair<RedisValue, RedisValue>(x.Key, _serializer.Serialize(x.Value))
+				)
+			);
+		}
+
 		public async Task RemoveAsync(string key)
 		{
 			await _database.KeyDeleteAsync(key);
 		}
 		public async Task RemoveAsync(string[] keys)
 		{
-			await _database.KeyDeleteAsync(FromStringArray(keys));
+			await _database.KeyDeleteAsync(ToRedisKeys(keys));
 		}
 
 		public async Task UpsertAsync<T>(string key, T value, TimeSpan? expiresIn = null)
@@ -100,7 +180,7 @@ namespace Miki.Cache.StackExchange
 			}
 		}
 
-		internal RedisKey[] FromStringArray(string[] keys)
+		internal RedisKey[] ToRedisKeys(string[] keys)
 		{
 			RedisKey[] redisKeys = new RedisKey[keys.Length];
 			for (int i = 0; i < keys.Length; i++)
@@ -108,6 +188,35 @@ namespace Miki.Cache.StackExchange
 				redisKeys[i] = keys[i];
 			}
 			return redisKeys;
+		}
+
+		internal RedisValue[] ToRedisValues(string[] keys)
+		{
+			RedisValue[] values = new RedisValue[keys.Length];
+			for (int i = 0; i < keys.Length; i++)
+			{
+				values[i] = keys[i];
+			}
+			return values;
+		}
+
+		internal string[] ToStringArray(RedisKey[] values)
+		{
+			string[] str = new string[values.Length];
+			for (int i = 0; i < values.Length; i++)
+			{
+				str[i] = values[i];
+			}
+			return str;
+		}
+		internal string[] ToStringArray(RedisValue[] values)
+		{
+			string[] str = new string[values.Length];
+			for (int i = 0; i < values.Length; i++)
+			{
+				str[i] = values[i];
+			}
+			return str;
 		}
 	}
 }
