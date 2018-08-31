@@ -82,7 +82,12 @@ namespace Miki.Cache.StackExchange
 
 		public async Task<T> HashGetAsync<T>(string key, string hashKey)
 		{
-			return _serializer.Deserialize<T>(await _database.HashGetAsync(key, hashKey));
+			var response = await _database.HashGetAsync(key, hashKey);
+			if(response.HasValue)
+			{
+				return _serializer.Deserialize<T>(response);
+			}
+			return default(T);
 		}
 		public async Task<T[]> HashGetAsync<T>(string key, string[] hashKeys)
 		{
@@ -94,7 +99,14 @@ namespace Miki.Cache.StackExchange
 
 			for (int i = 0; i < values.Length; i++)
 			{
-				output[i] = _serializer.Deserialize<T>(values[i]);
+				if (values[i].HasValue)
+				{
+					output[i] = _serializer.Deserialize<T>(values[i]);
+				}
+				else
+				{
+					output[i] = default(T);
+				}
 			}
 
 			return output;

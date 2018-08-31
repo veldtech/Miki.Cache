@@ -6,7 +6,7 @@
     <Authors>Velddev</Authors>
     <Company>Velddev</Company>
     <Description>StackExchange.Redis Implementation for Miki.Cache</Description>
-    <Version>2.1.0</Version>
+    <Version>2.1.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
