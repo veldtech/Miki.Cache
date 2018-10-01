@@ -6,16 +6,12 @@
     <Authors>Velddev</Authors>
     <Company>Velddev</Company>
     <Description>StackExchange.Redis Implementation for Miki.Cache</Description>
-    <Version>2.1.1</Version>
+    <Version>2.1.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Miki.Serialization" Version="0.1.0" />
-    <PackageReference Include="StackExchange.Redis" Version="2.0.0-alpha.436" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Miki.Cache\Miki.Cache.csproj" />
+    <PackageReference Include="StackExchange.Redis" Version="2.0.505" />
   </ItemGroup>
 
 </Project>

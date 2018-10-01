@@ -13,6 +13,7 @@ namespace Miki.Cache.Extensions
 		public HashSet(IExtendedCacheClient cacheClient, string key)
 		{
 			_cacheClient = cacheClient;
+			_key = key;
 		}
 
 		public async Task AddAsync(string key, T value)
@@ -47,8 +48,6 @@ namespace Miki.Cache.Extensions
 			=> await _cacheClient.HashLengthAsync(_key);
 
 		public async Task<T[]> ValuesAsync()
-		{
-			throw new NotImplementedException();
-		}
+			=> await _cacheClient.HashValuesAsync<T>(_key);
 	}
 }
