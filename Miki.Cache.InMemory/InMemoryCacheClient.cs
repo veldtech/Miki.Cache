@@ -60,64 +60,142 @@ namespace Miki.Cache.InMemory
 			return t;
 		}
 
-		public Task HashDeleteAsync(string key, string hashKey)
+		public async Task HashDeleteAsync(string key, string hashKey)
 		{
-			throw new NotImplementedException();
+			if(_dictionary.TryGetValue(key, out byte[] bytes))
+			{
+				var hash = _serializer.Deserialize<ConcurrentDictionary<string, byte[]>>(bytes);
+				hash.TryRemove(hashKey, out _);
+				await UpsertAsync(key, hash);
+			}
 		}
 
-		public Task HashDeleteAsync(string key, string[] hashKeys)
+		public async Task HashDeleteAsync(string key, string[] hashKeys)
 		{
-			throw new NotImplementedException();
+			foreach(string hKey in hashKeys)
+			{
+				await HashDeleteAsync(key, hKey);
+			}
 		}
 
 		public Task<bool> HashExistsAsync(string key, string hashKey)
 		{
-			throw new NotImplementedException();
+			if (_dictionary.TryGetValue(key, out byte[] bytes))
+			{
+				var hash = _serializer.Deserialize<ConcurrentDictionary<string, byte[]>>(bytes);
+				return Task.FromResult(hash.ContainsKey(hashKey));
+			}
+			return Task.FromResult(false);
 		}
 
-		public Task<long> HashExistsAsync(string key, string[] hashKeys)
+		public async Task<long> HashExistsAsync(string key, string[] hashKeys)
 		{
-			throw new NotImplementedException();
+			long x = 0;
+			foreach(string hKey in hashKeys)
+			{
+				if(await HashExistsAsync(key, hKey))
+				{
+					x++;
+				}
+			}
+			return x;
 		}
 
 		public Task<KeyValuePair<string, T>[]> HashGetAllAsync<T>(string key)
 		{
-			throw new NotImplementedException();
+			if (_dictionary.TryGetValue(key, out byte[] bytes))
+			{
+				var hash = _serializer.Deserialize<ConcurrentDictionary<string, byte[]>>(bytes);
+
+				return Task.FromResult(
+					hash
+					.Select(x => new KeyValuePair<string, T>(x.Key, _serializer.Deserialize<T>(x.Value)))
+					.ToArray()
+				);
+			}
+			return Task.FromResult(new KeyValuePair<string, T>[0]);
 		}
 
 		public Task<T> HashGetAsync<T>(string key, string hashKey)
 		{
-			throw new NotImplementedException();
+			if (_dictionary.TryGetValue(key, out byte[] bytes))
+			{
+				var hash = _serializer.Deserialize<ConcurrentDictionary<string, byte[]>>(bytes);
+				if (hash.TryGetValue(hashKey, out byte[] hashBytes))
+				{
+					return Task.FromResult(_serializer.Deserialize<T>(hashBytes));
+				}
+			}
+			return Task.FromResult(default(T));
 		}
 
-		public Task<T> HashGetAsync<T>(string key, string[] hashKeys)
+		public async Task<T[]> HashGetAsync<T>(string key, string[] hashKeys)
 		{
-			throw new NotImplementedException();
+			List<T> allItems = new List<T>();
+			foreach (string hKey in hashKeys)
+			{
+				allItems.Add(await HashGetAsync<T>(key, hKey));
+			}
+			return allItems.ToArray();
 		}
 
 		public Task<string[]> HashKeysAsync(string key)
 		{
-			throw new NotImplementedException();
+			if (_dictionary.TryGetValue(key, out byte[] bytes))
+			{
+				var hash = _serializer.Deserialize<ConcurrentDictionary<string, byte[]>>(bytes);
+				return Task.FromResult(hash.Select(x => x.Key).ToArray());
+			}
+			return Task.FromResult<string[]>(new string[0]);
 		}
 
 		public Task<long> HashLengthAsync(string key)
 		{
-			throw new NotImplementedException();
+			if (_dictionary.TryGetValue(key, out byte[] bytes))
+			{
+				var hash = _serializer.Deserialize<ConcurrentDictionary<string, byte[]>>(bytes);
+				return Task.FromResult((long)hash.Count);
+			}
+			return Task.FromResult(0L);
 		}
 
-		public Task HashUpsertAsync<T>(string key, string hashKey, T value)
+		public async Task HashUpsertAsync<T>(string key, string hashKey, T value)
 		{
-			throw new NotImplementedException();
+			ConcurrentDictionary<string, byte[]> hash = null;
+			if (_dictionary.TryGetValue(key, out byte[] bytes))
+			{
+				hash = _serializer.Deserialize<ConcurrentDictionary<string, byte[]>>(bytes);
+				hash.AddOrUpdate(hashKey, _serializer.Serialize(value), (x, y) => _serializer.Serialize(value));
+			}
+			else
+			{
+				hash = new ConcurrentDictionary<string, byte[]>();
+				hash.AddOrUpdate(hashKey, _serializer.Serialize(value), (x, y) => _serializer.Serialize(value));
+			}
+			await UpsertAsync(key, hash);
 		}
 
-		public Task HashUpsertAsync<T>(string key, KeyValuePair<string, T>[] values)
+		public async Task HashUpsertAsync<T>(string key, KeyValuePair<string, T>[] values)
 		{
-			throw new NotImplementedException();
+			foreach(var value in values)
+			{
+				await HashUpsertAsync(key, value.Key, value.Value);
+			}
 		}
 
 		public Task<T[]> HashValuesAsync<T>(string key)
 		{
-			throw new NotImplementedException();
+			if (_dictionary.TryGetValue(key, out byte[] bytes))
+			{
+				var hash = _serializer.Deserialize<ConcurrentDictionary<string, byte[]>>(bytes);
+
+				return Task.FromResult(
+					hash
+					.Select(x => _serializer.Deserialize<T>(x.Value))
+					.ToArray()
+				);
+			}
+			return Task.FromResult(new T[0]);
 		}
 
 		public async Task RemoveAsync(string key)
@@ -146,11 +224,6 @@ namespace Miki.Cache.InMemory
 			{
 				await UpsertAsync(i.Key, i.Value);
 			}
-		}
-
-		Task<T[]> IExtendedCacheClient.HashGetAsync<T>(string key, string[] hashKeys)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

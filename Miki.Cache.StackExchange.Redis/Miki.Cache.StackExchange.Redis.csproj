@@ -14,4 +14,8 @@
     <PackageReference Include="StackExchange.Redis" Version="2.0.505" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Miki.Cache\Miki.Cache.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+    <PackageReference Include="Miki.Serialization.Protobuf" Version="1.0.4" />
+    <PackageReference Include="xunit" Version="2.3.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Miki.Cache.InMemory\Miki.Cache.InMemory.csproj" />
+    <ProjectReference Include="..\Miki.Cache.StackExchange.Redis\Miki.Cache.StackExchange.Redis.csproj" />
+    <ProjectReference Include="..\Miki.Cache\Miki.Cache.csproj" />
+  </ItemGroup>
+
+</Project>
