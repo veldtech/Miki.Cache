@@ -22,15 +22,46 @@ namespace Miki.Cache.StackExchange
 			_database = Client.GetDatabase();
 		}
 
+		public bool Exists(string key)
+			=> _database.KeyExists(key);
+		public long Exists(string[] keys)
+			=> _database.KeyExists(Array.ConvertAll(keys, x => (RedisKey)x));
+
 		public async Task<bool> ExistsAsync(string key)
-		{
-			return await _database.KeyExistsAsync(key);
-		}
+			=> await _database.KeyExistsAsync(key);
 		public async Task<long> ExistsAsync(string[] keys)
+			=> await _database.KeyExistsAsync(Array.ConvertAll(keys, x => (RedisKey)x));
+		
+		public T Get<T>(string key)
 		{
-			return await _database.KeyExistsAsync(Array.ConvertAll(keys, (x => (RedisKey)x)));
+			var result = _database.StringGet(key);
+
+			if (!result.IsNullOrEmpty)
+			{
+				return _serializer.Deserialize<T>(result);
+			}
+
+			return default(T);
 		}
-			 
+		public T[] Get<T>(string[] keys)
+		{
+			var result = _database.StringGet(Array.ConvertAll(keys, (x => (RedisKey)x)));
+			T[] results = new T[keys.Length];
+
+			for (int i = 0; i < keys.Length; i++)
+			{
+				if (!result[i].IsNullOrEmpty)
+				{
+					results[i] = _serializer.Deserialize<T>(result[i]);
+				}
+				else
+				{
+					results[i] = default(T);
+				}
+			}
+			return results;
+		}
+
 		public async Task<T> GetAsync<T>(string key)
 		{
 			var result = await _database.StringGetAsync(key);
@@ -62,6 +93,11 @@ namespace Miki.Cache.StackExchange
 			return results;
 		}
 
+		public void HashDelete(string key, string hashKey)
+			=> _database.HashDelete(key, hashKey);
+		public void HashDelete(string key, string[] hashKey)
+			=> _database.HashDelete(key, ToRedisValues(hashKey));
+
 		public async Task HashDeleteAsync(string key, string hashKey)
 		{
 			await _database.HashDeleteAsync(key, hashKey);
@@ -71,13 +107,48 @@ namespace Miki.Cache.StackExchange
 			await _database.HashDeleteAsync(key, ToRedisValues(hashKeys));
 		}
 
-		public async Task<bool> HashExistsAsync(string key, string hashKey)
+		public bool HashExists(string key, string hashKey)
+			=> _database.HashExists(key, hashKey);
+		public long HashExists(string key, string[] hashKeys)
 		{
-			return await _database.HashExistsAsync(key, hashKey);
+			return HashKeys(key).Count(x => hashKeys.Contains(x));
 		}
+
+		public async Task<bool> HashExistsAsync(string key, string hashKey)
+			=> await _database.HashExistsAsync(key, hashKey);
 		public async Task<long> HashExistsAsync(string key, string[] hashKeys)
+			=> (await HashKeysAsync(key)).Count(x => hashKeys.Contains(x));
+
+		public T HashGet<T>(string key, string hashKey)
 		{
-			return (await HashKeysAsync(key)).Count(x => x != null);
+			var response = _database.HashGet(key, hashKey);
+			if (response.HasValue)
+			{
+				return _serializer.Deserialize<T>(response);
+			}
+			return default(T);
+		}
+		public T[] HashGet<T>(string key, string[] hashKeys)
+		{
+			RedisValue[] values = _database.HashGet(
+				key, ToRedisValues(hashKeys)
+			);
+
+			T[] output = new T[values.Length];
+
+			for (int i = 0; i < values.Length; i++)
+			{
+				if (values[i].HasValue)
+				{
+					output[i] = _serializer.Deserialize<T>(values[i]);
+				}
+				else
+				{
+					output[i] = default(T);
+				}
+			}
+
+			return output;
 		}
 
 		public async Task<T> HashGetAsync<T>(string key, string hashKey)
@@ -112,14 +183,29 @@ namespace Miki.Cache.StackExchange
 			return output;
 		}
 
+		public string[] HashKeys(string key)
+			=> ToStringArray(_database.HashKeys(key));
+
 		public async Task<string[]> HashKeysAsync(string key)
 		{
 			return ToStringArray(await _database.HashKeysAsync(key));
 		}
 
+		public long HashLength(string key)
+			=> _database.HashLength(key);
+
 		public async Task<long> HashLengthAsync(string key)
 		{
 			return await _database.HashLengthAsync(key);
+		}
+
+		public T[] HashValues<T>(string key)
+		{
+			var items = _database.HashValues(key);
+
+			return items
+				.Select(x => _serializer.Deserialize<T>(x))
+				.ToArray();
 		}
 
 		public async Task<T[]> HashValuesAsync<T>(string key)
@@ -131,12 +217,33 @@ namespace Miki.Cache.StackExchange
 				.ToArray();
 		}
 
+		public KeyValuePair<string, T>[] HashGetAll<T>(string key)
+		{
+			var items = _database.HashGetAll(key);
+			return items
+				.Select(x => new KeyValuePair<string, T>(x.Name, _serializer.Deserialize<T>(x.Value)))
+				.ToArray();
+		}
+
 		public async Task<KeyValuePair<string, T>[]> HashGetAllAsync<T>(string key)
 		{
 			var items = await _database.HashGetAllAsync(key);
 			return items
 				.Select(x =>  new KeyValuePair<string, T>(x.Name, _serializer.Deserialize<T>(x.Value)))
 				.ToArray();
+		}
+
+		public void HashUpsert<T>(string key, string hashKey, T value)
+			=> _database.HashSet(key, hashKey, _serializer.Serialize(value));
+		public void HashUpsert<T>(string key, KeyValuePair<string, T>[] values)
+		{
+			_database.HashSet(
+				key,
+				Array.ConvertAll(
+					values,
+					x => (HashEntry)new KeyValuePair<RedisValue, RedisValue>(x.Key, _serializer.Serialize(x.Value))
+				)
+			);
 		}
 
 		public async Task HashUpsertAsync<T>(string key, string hashKey, T value)
@@ -154,6 +261,11 @@ namespace Miki.Cache.StackExchange
 			);
 		}
 
+		public void Remove(string key)
+			=> _database.KeyDelete(key);
+		public void Remove(string[] keys)
+			=> _database.KeyDelete(ToRedisKeys(keys));
+
 		public async Task RemoveAsync(string key)
 		{
 			await _database.KeyDeleteAsync(key);
@@ -161,6 +273,35 @@ namespace Miki.Cache.StackExchange
 		public async Task RemoveAsync(string[] keys)
 		{
 			await _database.KeyDeleteAsync(ToRedisKeys(keys));
+		}
+
+		public void Upsert<T>(string key, T value, TimeSpan? expiresIn = null)
+		{
+			_database.StringSet(
+				key,
+				_serializer.Serialize<T>(value),
+				expiresIn
+			);
+		}
+		public void Upsert<T>(KeyValuePair<string, T>[] values, TimeSpan? expiresIn = null)
+		{
+			KeyValuePair<RedisKey, RedisValue>[] v = new KeyValuePair<RedisKey, RedisValue>[values.Count()];
+			for (int i = 0, max = values.Length; i < max; i++)
+			{
+				v[i] = new KeyValuePair<RedisKey, RedisValue>(
+					values[i].Key,
+					_serializer.Serialize(values[i].Value)
+				);
+			}
+			_database.StringSet(v);
+
+			if (expiresIn.HasValue)
+			{
+				foreach (var kv in values)
+				{
+					_database.KeyExpire(kv.Key, expiresIn.Value);
+				}
+			}
 		}
 
 		public async Task UpsertAsync<T>(string key, T value, TimeSpan? expiresIn = null)

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.11.1" />
+    <PackageReference Include="Miki.Serialization.Protobuf" Version="1.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Miki.Cache.StackExchange.Redis\Miki.Cache.StackExchange.Redis.csproj" />
+    <ProjectReference Include="..\Miki.Cache\Miki.Cache.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -24,6 +24,16 @@ namespace Miki.Cache.InMemory
 			_serializer = serializer;
 		}
 
+		public bool Exists(string key)
+		{
+			throw new NotImplementedException();
+		}
+
+		public long Exists(string[] key)
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task<bool> ExistsAsync(string key)
 		{
 			await Task.Yield();
@@ -33,6 +43,16 @@ namespace Miki.Cache.InMemory
 		{
 			await Task.Yield();
 			return key.Count(x => _dictionary.ContainsKey(x));
+		}
+
+		public T Get<T>(string key)
+		{
+			throw new NotImplementedException();
+		}
+
+		public T[] Get<T>(string[] keys)
+		{
+			throw new NotImplementedException();
 		}
 
 		public async Task<T> GetAsync<T>(string key)
@@ -60,6 +80,16 @@ namespace Miki.Cache.InMemory
 			return t;
 		}
 
+		public void HashDelete(string key, string hashKey)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void HashDelete(string key, string[] hashKeys)
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task HashDeleteAsync(string key, string hashKey)
 		{
 			if(_dictionary.TryGetValue(key, out byte[] bytes))
@@ -76,6 +106,16 @@ namespace Miki.Cache.InMemory
 			{
 				await HashDeleteAsync(key, hKey);
 			}
+		}
+
+		public bool HashExists(string key, string hashKey)
+		{
+			throw new NotImplementedException();
+		}
+
+		public long HashExists(string key, string[] hashKeys)
+		{
+			throw new NotImplementedException();
 		}
 
 		public Task<bool> HashExistsAsync(string key, string hashKey)
@@ -99,6 +139,21 @@ namespace Miki.Cache.InMemory
 				}
 			}
 			return x;
+		}
+
+		public T HashGet<T>(string key, string hashKey)
+		{
+			throw new NotImplementedException();
+		}
+
+		public T[] HashGet<T>(string key, string[] hashKeys)
+		{
+			throw new NotImplementedException();
+		}
+
+		public KeyValuePair<string, T>[] HashGetAll<T>(string key)
+		{
+			throw new NotImplementedException();
 		}
 
 		public Task<KeyValuePair<string, T>[]> HashGetAllAsync<T>(string key)
@@ -139,6 +194,11 @@ namespace Miki.Cache.InMemory
 			return allItems.ToArray();
 		}
 
+		public string[] HashKeys(string key)
+		{
+			throw new NotImplementedException();
+		}
+
 		public Task<string[]> HashKeysAsync(string key)
 		{
 			if (_dictionary.TryGetValue(key, out byte[] bytes))
@@ -149,6 +209,11 @@ namespace Miki.Cache.InMemory
 			return Task.FromResult<string[]>(new string[0]);
 		}
 
+		public long HashLength(string key)
+		{
+			throw new NotImplementedException();
+		}
+
 		public Task<long> HashLengthAsync(string key)
 		{
 			if (_dictionary.TryGetValue(key, out byte[] bytes))
@@ -157,6 +222,16 @@ namespace Miki.Cache.InMemory
 				return Task.FromResult((long)hash.Count);
 			}
 			return Task.FromResult(0L);
+		}
+
+		public void HashUpsert<T>(string key, string hashKey, T value)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void HashUpsert<T>(string key, KeyValuePair<string, T>[] values)
+		{
+			throw new NotImplementedException();
 		}
 
 		public async Task HashUpsertAsync<T>(string key, string hashKey, T value)
@@ -183,6 +258,11 @@ namespace Miki.Cache.InMemory
 			}
 		}
 
+		public T[] HashValues<T>(string key)
+		{
+			throw new NotImplementedException();
+		}
+
 		public Task<T[]> HashValuesAsync<T>(string key)
 		{
 			if (_dictionary.TryGetValue(key, out byte[] bytes))
@@ -198,6 +278,16 @@ namespace Miki.Cache.InMemory
 			return Task.FromResult(new T[0]);
 		}
 
+		public void Remove(string key)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Remove(string[] keys)
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task RemoveAsync(string key)
 		{
 			if(await ExistsAsync(key))
@@ -211,6 +301,16 @@ namespace Miki.Cache.InMemory
 			{
 				await RemoveAsync(key);
 			}
+		}
+
+		public void Upsert<T>(string key, T value, TimeSpan? expiresIn = null)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Upsert<T>(KeyValuePair<string, T>[] values, TimeSpan? expiresIn = null)
+		{
+			throw new NotImplementedException();
 		}
 
 		public async Task UpsertAsync<T>(string key, T value, TimeSpan? expiresIn = null)

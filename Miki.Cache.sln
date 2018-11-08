@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Miki.Cache.Tests", "Miki.Ca
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Miki.Cache.Extensions.AspNetCore", "Miki.Cache.Extensions.AspNetCore\Miki.Cache.Extensions.AspNetCore.csproj", "{FDC96BF9-39B7-41C9-9580-C8B0E95EB2DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Miki.Cache.Tests.Performance", "Miki.Cache.Performance\Miki.Cache.Tests.Performance.csproj", "{735B1DA3-97AE-408B-8EEB-88C16BF485C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{FDC96BF9-39B7-41C9-9580-C8B0E95EB2DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDC96BF9-39B7-41C9-9580-C8B0E95EB2DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDC96BF9-39B7-41C9-9580-C8B0E95EB2DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{735B1DA3-97AE-408B-8EEB-88C16BF485C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{735B1DA3-97AE-408B-8EEB-88C16BF485C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{735B1DA3-97AE-408B-8EEB-88C16BF485C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{735B1DA3-97AE-408B-8EEB-88C16BF485C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
