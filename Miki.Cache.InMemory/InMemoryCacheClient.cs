@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Miki.Cache.InMemory
 {
-	public class InMemoryCacheClient : IExtendedCacheClient
+    public class InMemoryCacheClient : IExtendedCacheClient
 	{
 		private ConcurrentDictionary<string, byte[]> _dictionary;
 		private ISerializer _serializer;
@@ -24,36 +24,26 @@ namespace Miki.Cache.InMemory
 			_serializer = serializer;
 		}
 
-		public bool Exists(string key)
-		{
-			throw new NotImplementedException();
-		}
-
-		public long Exists(string[] key)
-		{
-			throw new NotImplementedException();
-		}
-
-		public async Task<bool> ExistsAsync(string key)
+        /// <inheritdoc />
+        public async Task<bool> ExistsAsync(string key)
 		{
 			await Task.Yield();
 			return _dictionary.ContainsKey(key);
 		}
-		public async Task<long> ExistsAsync(string[] key)
-		{
-			await Task.Yield();
-			return key.Count(x => _dictionary.ContainsKey(x));
-		}
+        public Task<long> ExistsAsync(IEnumerable<string> keys)
+        {
+            return Task.FromResult(
+                (long)keys.Count(x => _dictionary.ContainsKey(x)));
+        }
 
-		public T Get<T>(string key)
-		{
-			throw new NotImplementedException();
-		}
-
-		public T[] Get<T>(string[] keys)
-		{
-			throw new NotImplementedException();
-		}
+        public Task ExpiresAsync(string key, TimeSpan expiresIn)
+        {
+            throw new NotImplementedException();
+        }
+        public Task ExpiresAsync(string key, DateTime expiresAt)
+        {
+            throw new NotImplementedException();
+        }
 
 		public async Task<T> GetAsync<T>(string key)
 		{
@@ -63,32 +53,22 @@ namespace Miki.Cache.InMemory
 			}
 			return default(T);
 		}
-		public async Task<T[]> GetAsync<T>(string[] keys)
-		{
-			T[] t = new T[keys.Length];
-			for (int i = 0; i < keys.Length; i++)
-			{
-				if(await ExistsAsync(keys[i]))
-				{
-					t[i] = await GetAsync<T>(keys[i]);
-				}
-				else
-				{
-					t[i] = default(T);
-				}
-			}
-			return t;
-		}
-
-		public void HashDelete(string key, string hashKey)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void HashDelete(string key, string[] hashKeys)
-		{
-			throw new NotImplementedException();
-		}
+        public async Task<IEnumerable<T>> GetAsync<T>(IEnumerable<string> keys)
+        {
+            T[] t = new T[keys.Count()];
+            for (int i = 0; i < keys.Count(); i++)
+            {
+                if (await ExistsAsync(keys.ElementAtOrDefault(i)))
+                {
+                    t[i] = await GetAsync<T>(keys.ElementAtOrDefault(i));
+                }
+                else
+                {
+                    t[i] = default(T);
+                }
+            }
+            return t;
+        }
 
 		public async Task HashDeleteAsync(string key, string hashKey)
 		{
@@ -99,24 +79,13 @@ namespace Miki.Cache.InMemory
 				await UpsertAsync(key, hash);
 			}
 		}
-
-		public async Task HashDeleteAsync(string key, string[] hashKeys)
-		{
-			foreach(string hKey in hashKeys)
-			{
-				await HashDeleteAsync(key, hKey);
-			}
-		}
-
-		public bool HashExists(string key, string hashKey)
-		{
-			throw new NotImplementedException();
-		}
-
-		public long HashExists(string key, string[] hashKeys)
-		{
-			throw new NotImplementedException();
-		}
+        public async Task HashDeleteAsync(string key, IEnumerable<string> hashKeys)
+        {
+            foreach (string hKey in hashKeys)
+            {
+                await HashDeleteAsync(key, hKey);
+            }
+        }
 
 		public Task<bool> HashExistsAsync(string key, string hashKey)
 		{
@@ -128,7 +97,7 @@ namespace Miki.Cache.InMemory
 			return Task.FromResult(false);
 		}
 
-		public async Task<long> HashExistsAsync(string key, string[] hashKeys)
+		public async Task<long> HashExistsAsync(string key, IEnumerable<string> hashKeys)
 		{
 			long x = 0;
 			foreach(string hKey in hashKeys)
@@ -141,34 +110,18 @@ namespace Miki.Cache.InMemory
 			return x;
 		}
 
-		public T HashGet<T>(string key, string hashKey)
-		{
-			throw new NotImplementedException();
-		}
-
-		public T[] HashGet<T>(string key, string[] hashKeys)
-		{
-			throw new NotImplementedException();
-		}
-
-		public KeyValuePair<string, T>[] HashGetAll<T>(string key)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<KeyValuePair<string, T>[]> HashGetAllAsync<T>(string key)
+		public Task<IEnumerable<KeyValuePair<string, T>>> HashGetAllAsync<T>(string key)
 		{
 			if (_dictionary.TryGetValue(key, out byte[] bytes))
 			{
 				var hash = _serializer.Deserialize<ConcurrentDictionary<string, byte[]>>(bytes);
 
 				return Task.FromResult(
-					hash
-					.Select(x => new KeyValuePair<string, T>(x.Key, _serializer.Deserialize<T>(x.Value)))
-					.ToArray()
-				);
+					hash.Select(x 
+                        => new KeyValuePair<string, T>(x.Key, _serializer.Deserialize<T>(x.Value)))
+                );
 			}
-			return Task.FromResult(new KeyValuePair<string, T>[0]);
+			return Task.FromResult<IEnumerable<KeyValuePair<string, T>>>(null);
 		}
 
 		public Task<T> HashGetAsync<T>(string key, string hashKey)
@@ -184,7 +137,7 @@ namespace Miki.Cache.InMemory
 			return Task.FromResult(default(T));
 		}
 
-		public async Task<T[]> HashGetAsync<T>(string key, string[] hashKeys)
+		public async Task<IEnumerable<T>> HashGetAsync<T>(string key, IEnumerable<string> hashKeys)
 		{
 			List<T> allItems = new List<T>();
 			foreach (string hKey in hashKeys)
@@ -194,24 +147,14 @@ namespace Miki.Cache.InMemory
 			return allItems.ToArray();
 		}
 
-		public string[] HashKeys(string key)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<string[]> HashKeysAsync(string key)
+		public Task<IEnumerable<string>> HashKeysAsync(string key)
 		{
 			if (_dictionary.TryGetValue(key, out byte[] bytes))
 			{
 				var hash = _serializer.Deserialize<ConcurrentDictionary<string, byte[]>>(bytes);
-				return Task.FromResult(hash.Select(x => x.Key).ToArray());
+				return Task.FromResult(hash.Select(x => x.Key));
 			}
-			return Task.FromResult<string[]>(new string[0]);
-		}
-
-		public long HashLength(string key)
-		{
-			throw new NotImplementedException();
+			return Task.FromResult(Enumerable.Empty<string>());
 		}
 
 		public Task<long> HashLengthAsync(string key)
@@ -222,16 +165,6 @@ namespace Miki.Cache.InMemory
 				return Task.FromResult((long)hash.Count);
 			}
 			return Task.FromResult(0L);
-		}
-
-		public void HashUpsert<T>(string key, string hashKey, T value)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void HashUpsert<T>(string key, KeyValuePair<string, T>[] values)
-		{
-			throw new NotImplementedException();
 		}
 
 		public async Task HashUpsertAsync<T>(string key, string hashKey, T value)
@@ -250,7 +183,7 @@ namespace Miki.Cache.InMemory
 			await UpsertAsync(key, hash);
 		}
 
-		public async Task HashUpsertAsync<T>(string key, KeyValuePair<string, T>[] values)
+		public async Task HashUpsertAsync<T>(string key, IEnumerable<KeyValuePair<string, T>> values)
 		{
 			foreach(var value in values)
 			{
@@ -258,12 +191,7 @@ namespace Miki.Cache.InMemory
 			}
 		}
 
-		public T[] HashValues<T>(string key)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<T[]> HashValuesAsync<T>(string key)
+		public Task<IEnumerable<T>> HashValuesAsync<T>(string key)
 		{
 			if (_dictionary.TryGetValue(key, out byte[] bytes))
 			{
@@ -272,20 +200,9 @@ namespace Miki.Cache.InMemory
 				return Task.FromResult(
 					hash
 					.Select(x => _serializer.Deserialize<T>(x.Value))
-					.ToArray()
 				);
 			}
-			return Task.FromResult(new T[0]);
-		}
-
-		public void Remove(string key)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void Remove(string[] keys)
-		{
-			throw new NotImplementedException();
+			return Task.FromResult(Enumerable.Empty<T>());
 		}
 
 		public async Task RemoveAsync(string key)
@@ -295,7 +212,7 @@ namespace Miki.Cache.InMemory
 				_dictionary.TryRemove(key, out var x);
 			}
 		}
-		public async Task RemoveAsync(string[] keys)
+		public async Task RemoveAsync(IEnumerable<string> keys)
 		{
 			foreach(var key in keys)
 			{
@@ -303,22 +220,12 @@ namespace Miki.Cache.InMemory
 			}
 		}
 
-		public void Upsert<T>(string key, T value, TimeSpan? expiresIn = null)
+		public Task UpsertAsync<T>(string key, T value, TimeSpan? expiresIn = null)
 		{
-			throw new NotImplementedException();
-		}
-
-		public void Upsert<T>(KeyValuePair<string, T>[] values, TimeSpan? expiresIn = null)
-		{
-			throw new NotImplementedException();
-		}
-
-		public async Task UpsertAsync<T>(string key, T value, TimeSpan? expiresIn = null)
-		{
-			await Task.Yield();
 			_dictionary.AddOrUpdate(key, _serializer.Serialize(value), (x, y) => _serializer.Serialize(value));
+            return Task.CompletedTask;
 		}
-		public async Task UpsertAsync<T>(KeyValuePair<string, T>[] values, TimeSpan? expiresIn = null)
+		public async Task UpsertAsync<T>(IEnumerable<KeyValuePair<string, T>> values, TimeSpan? expiresIn = null)
 		{
 			foreach(var i in values)
 			{

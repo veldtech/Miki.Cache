@@ -39,15 +39,6 @@ namespace Miki.Cache.Performance
 			}
 		}
 
-		[Benchmark]
-		public void TestSync()
-		{
-			for (int i = 0; i < N; i++)
-			{
-				TestSync<string>(client, "test", "test2");
-			}
-		}
-
 		async Task Test<T>(ICacheClient client, T value, T value2)
 		{
 
@@ -60,19 +51,6 @@ namespace Miki.Cache.Performance
 			T x = await client.GetAsync<T>(itemKey);
 
 			await client.RemoveAsync(itemKey);
-		}
-
-		void TestSync<T>(ICacheClient client, T value, T value2)
-		{
-			string itemKey = "test";
-
-			client.Upsert(itemKey, value);
-
-			client.Exists(itemKey);
-
-			T x = client.Get<T>(itemKey);
-
-			client.Remove(itemKey);
 		}
 	}
 }

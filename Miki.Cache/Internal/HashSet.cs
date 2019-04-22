@@ -7,8 +7,8 @@ namespace Miki.Cache.Extensions
 {
 	internal class HashSet<T> : IHashSet<T>
 	{
-		IExtendedCacheClient _cacheClient;
-		string _key;
+		private readonly IExtendedCacheClient _cacheClient;
+		private readonly string _key;
 
 		public HashSet(IExtendedCacheClient cacheClient, string key)
 		{
@@ -21,7 +21,7 @@ namespace Miki.Cache.Extensions
 			await _cacheClient.HashUpsertAsync(_key, key, value);
 		}
 
-		public async Task AddAsync(KeyValuePair<string, T>[] values)
+		public async Task AddAsync(IEnumerable<KeyValuePair<string, T>> values)
 		{
 			await _cacheClient.HashUpsertAsync(_key, values);
 		}
@@ -29,25 +29,25 @@ namespace Miki.Cache.Extensions
 		public async Task<bool> ExistsAsync(string key)
 			=> await _cacheClient.HashExistsAsync(_key, key);
 
-		public async Task<long> ExistsAsync(string[] keys)
+		public async Task<long> ExistsAsync(IEnumerable<string> keys)
 			=> await _cacheClient.HashExistsAsync(_key, keys);
 
-		public async Task<KeyValuePair<string, T>[]> GetAllAsync()
+		public async Task<IEnumerable<KeyValuePair<string, T>>> GetAllAsync()
 			=> await _cacheClient.HashGetAllAsync<T>(_key);
 
 		public async Task<T> GetAsync(string key)
 			=> await _cacheClient.HashGetAsync<T>(_key, key);
 
-		public async Task<T[]> GetAsync(string[] key)
+		public async Task<IEnumerable<T>> GetAsync(IEnumerable<string> key)
 			=> await _cacheClient.HashGetAsync<T>(_key, key);
 
-		public async Task<string[]> KeysAsync()
+		public async Task<IEnumerable<string>> KeysAsync()
 			=> await _cacheClient.HashKeysAsync(_key);
 
 		public async Task<long> LengthAsync()
 			=> await _cacheClient.HashLengthAsync(_key);
 
-		public async Task<T[]> ValuesAsync()
+		public async Task<IEnumerable<T>> ValuesAsync()
 			=> await _cacheClient.HashValuesAsync<T>(_key);
 	}
 }

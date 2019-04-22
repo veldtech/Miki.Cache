@@ -9,7 +9,7 @@ namespace Miki.Cache.Tests
 {
 	public class CacheClients
 	{
-		ProtobufSerializer serializer = new ProtobufSerializer();
+		private readonly ProtobufSerializer serializer = new ProtobufSerializer();
 
 		[Fact]
 		public async Task InMemory()
@@ -17,7 +17,6 @@ namespace Miki.Cache.Tests
 			// InMemory
 			{
 				var pool = new InMemory.InMemoryCachePool(serializer);
-
 				await RunTests(await pool.GetAsync());
 			}
 		}
@@ -29,19 +28,7 @@ namespace Miki.Cache.Tests
 			// Redis
 			{
 				var pool = new StackExchange.StackExchangeCachePool(serializer, "localhost");
-
 				await RunTests(await pool.GetAsync());
-			}
-		}
-
-		[Fact]
-		public void StackExchangeSync()
-		{
-			// Redis
-			{
-				var pool = new StackExchange.StackExchangeCachePool(serializer, "localhost");
-
-				RunTestsSync(pool.GetAsync().Result);
 			}
 		}
 #endif
@@ -50,12 +37,6 @@ namespace Miki.Cache.Tests
 		{
 			await Test(client, 1, 2);
 			await Test(client, "test-string", "other-string");
-		}
-
-		void RunTestsSync(ICacheClient client)
-		{
-			TestSync(client, 1, 2);
-			TestSync(client, "test-string", "other-string");
 		}
 
 		async Task Test<T>(ICacheClient client, T value, T value2)
@@ -121,72 +102,6 @@ namespace Miki.Cache.Tests
 				Assert.Equal(default(T), await ex.HashGetAsync<T>(hashKey, itemKey));
 
 				await ex.RemoveAsync(hashKey);
-
-			}
-		}
-		void TestSync<T>(ICacheClient client, T value, T value2)
-		{
-			string itemKey = "test";
-
-			client.Upsert(itemKey, value);
-
-			Assert.True(client.Exists(itemKey));
-
-			T i = client.Get<T>(itemKey);
-
-			Assert.Equal(value, i);
-
-			client.Remove(itemKey);
-
-			if (client is IExtendedCacheClient ex)
-			{
-				string hashKey = "test:hash";
-
-				Assert.False(client.Exists(hashKey));
-				Assert.False(ex.HashExists(hashKey, itemKey));
-
-				Assert.DoesNotContain(ex.HashKeys(hashKey), x => x == itemKey);
-				Assert.DoesNotContain(ex.HashValues<T>(hashKey), x => x.Equals(value));
-				Assert.DoesNotContain(ex.HashGetAll<T>(hashKey), x => x.Key == itemKey && x.Value.Equals(value));
-
-				Assert.NotEqual(value, ex.HashGet<T>(hashKey, itemKey));
-				Assert.NotEqual(1, ex.HashLength(hashKey));
-
-				ex.HashUpsertAsync(hashKey, itemKey, value);
-
-				Assert.True(client.Exists(hashKey));
-				Assert.True(ex.HashExists(hashKey, itemKey));
-
-				Assert.Contains(ex.HashKeys(hashKey), x => x == itemKey);
-				Assert.Contains(ex.HashValues<T>(hashKey), x => x.Equals(value));
-				Assert.Contains(ex.HashGetAll<T>(hashKey), x => x.Key == itemKey && x.Value.Equals(value));
-
-				Assert.Equal(value, ex.HashGet<T>(hashKey, itemKey));
-				Assert.Equal(1, ex.HashLength(hashKey));
-
-				ex.HashUpsertAsync(hashKey, itemKey, value2);
-
-				Assert.True(client.Exists(hashKey));
-				Assert.True(ex.HashExists(hashKey, itemKey));
-
-				var keys = ex.HashKeys(hashKey);
-
-				Assert.Contains(keys, x => x == itemKey);
-
-				var values = ex.HashValues<T>(hashKey);
-
-				Assert.Contains(values, x => x.Equals(value2));
-
-				Assert.Contains(ex.HashGetAll<T>(hashKey), x => x.Key == itemKey && x.Value.Equals(value2));
-
-				Assert.Equal(value2, ex.HashGet<T>(hashKey, itemKey));
-				Assert.Equal(1, ex.HashLength(hashKey));
-
-				ex.HashDelete(hashKey, itemKey);
-
-				Assert.Equal(default(T), ex.HashGet<T>(hashKey, itemKey));
-
-				ex.Remove(hashKey);
 
 			}
 		}
