@@ -13,7 +13,7 @@ namespace Miki.Cache.Tests
 
 		[Fact]
 		public async Task InMemory()
-		{
+	{
 			// InMemory
 			{
 				var pool = new InMemory.InMemoryCachePool(serializer);

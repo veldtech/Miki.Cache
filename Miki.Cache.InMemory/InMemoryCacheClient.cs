@@ -24,11 +24,10 @@ namespace Miki.Cache.InMemory
 			_serializer = serializer;
 		}
 
-        /// <inheritdoc />
-        public async Task<bool> ExistsAsync(string key)
+        public Task<bool> ExistsAsync(string key)
 		{
-			await Task.Yield();
-			return _dictionary.ContainsKey(key);
+			return Task.FromResult(
+                _dictionary.ContainsKey(key));
 		}
         public Task<long> ExistsAsync(IEnumerable<string> keys)
         {
@@ -36,6 +35,7 @@ namespace Miki.Cache.InMemory
                 (long)keys.Count(x => _dictionary.ContainsKey(x)));
         }
 
+        // TODO (Veld): Add item expiration to InMemory
         public Task ExpiresAsync(string key, TimeSpan expiresIn)
         {
             throw new NotImplementedException();
@@ -115,13 +115,12 @@ namespace Miki.Cache.InMemory
 			if (_dictionary.TryGetValue(key, out byte[] bytes))
 			{
 				var hash = _serializer.Deserialize<ConcurrentDictionary<string, byte[]>>(bytes);
-
 				return Task.FromResult(
-					hash.Select(x 
-                        => new KeyValuePair<string, T>(x.Key, _serializer.Deserialize<T>(x.Value)))
+					hash.Select(x => new KeyValuePair<string, T>(x.Key, _serializer.Deserialize<T>(x.Value)))
                 );
 			}
-			return Task.FromResult<IEnumerable<KeyValuePair<string, T>>>(null);
+			return Task.FromResult(
+                Enumerable.Empty<KeyValuePair<string, T>>());
 		}
 
 		public Task<T> HashGetAsync<T>(string key, string hashKey)
