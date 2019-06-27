@@ -1,12 +1,42 @@
 ﻿using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
+using Miki.Serialization;
 using Miki.Serialization.Protobuf;
 
 namespace Miki.Cache.Performance
 {
-	class Program
+    class TestSerializer : ISerializer
+    {
+        public T Deserialize<T>(byte[] data)
+        {
+            if (data == null)
+                return default(T);
+            BinaryFormatter bf = new BinaryFormatter();
+            using (MemoryStream ms = new MemoryStream(data))
+            {
+                object obj = bf.Deserialize(ms);
+                return (T)obj;
+            }
+        }
+
+        public byte[] Serialize<T>(T obj)
+        {
+            if (obj == null)
+                return null;
+            BinaryFormatter bf = new BinaryFormatter();
+            using (MemoryStream ms = new MemoryStream())
+            {
+                bf.Serialize(ms, obj);
+                return ms.ToArray();
+            }
+        }
+    }
+
+    class Program
 	{
 		static void Main(string[] args)
 		{
@@ -27,7 +57,7 @@ namespace Miki.Cache.Performance
 		[GlobalSetup]
 		public void Setup()
 		{
-			client = new StackExchange.StackExchangeCachePool(new ProtobufSerializer(), "localhost").GetAsync().Result;
+			client = new StackExchange.StackExchangeCachePool(new TestSerializer(), "localhost").GetAsync().Result;
 		}
 
 		[Benchmark]

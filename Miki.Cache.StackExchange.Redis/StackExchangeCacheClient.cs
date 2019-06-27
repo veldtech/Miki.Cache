@@ -3,6 +3,7 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,29 +23,31 @@ namespace Miki.Cache.StackExchange
 			_database = Client.GetDatabase();
 		}
 
-		public async Task<bool> ExistsAsync(string key)
-			=> await _database.KeyExistsAsync(key);
-		public async Task<long> ExistsAsync(IEnumerable<string> keys)
-			=> await _database.KeyExistsAsync(keys
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public Task<bool> ExistsAsync(string key)
+			=> _database.KeyExistsAsync(key);
+		public Task<long> ExistsAsync(IEnumerable<string> keys)
+			=> _database.KeyExistsAsync(keys
                 .Select(x => (RedisKey)x)
                 .ToArray());
 
-        public async Task ExpiresAsync(string key, TimeSpan time)
-            => await _database.KeyExpireAsync(key, time);
-        public async Task ExpiresAsync(string key, DateTime date)
-            => await _database.KeyExpireAsync(key, date);
+        public Task ExpiresAsync(string key, TimeSpan time)
+            => _database.KeyExpireAsync(key, time);
+        public Task ExpiresAsync(string key, DateTime date)
+            => _database.KeyExpireAsync(key, date);
 
-		public async Task<T> GetAsync<T>(string key)
-		{
-			var result = await _database.StringGetAsync(key);
-			if (!result.IsNullOrEmpty)
-			{
-				return _serializer.Deserialize<T>(result);
-			}
-
-			return default(T);
-		}
-		public async Task<IEnumerable<T>> GetAsync<T>(IEnumerable<string> keys)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async Task<T> GetAsync<T>(string key)
+        {
+            var x = await _database.StringGetAsync(key);
+            if (!x.IsNullOrEmpty)
+            {
+                return _serializer.Deserialize<T>(x);
+            }
+            return default(T);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async Task<IEnumerable<T>> GetAsync<T>(IEnumerable<string> keys)
 		{
 			var result = await _database.StringGetAsync(keys.Select(x => (RedisKey)x).ToArray());
 			T[] results = new T[keys.Count()];
@@ -152,24 +155,29 @@ namespace Miki.Cache.StackExchange
 			);
 		}
 
-		public async Task RemoveAsync(string key)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task RemoveAsync(string key)
 		{
-			await _database.KeyDeleteAsync(key);
+			return _database.KeyDeleteAsync(key);
 		}
-		public async Task RemoveAsync(IEnumerable<string> keys)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task RemoveAsync(IEnumerable<string> keys)
 		{
-			await _database.KeyDeleteAsync(ToRedisKeys(keys));
+            return _database.KeyDeleteAsync(ToRedisKeys(keys));
 		}
 
-		public async Task UpsertAsync<T>(string key, T value, TimeSpan? expiresIn = null)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task UpsertAsync<T>(string key, T value, TimeSpan? expiresIn = null)
 		{
-			await _database.StringSetAsync(
+            return _database.StringSetAsync(
 				key,
 				_serializer.Serialize<T>(value),
 				expiresIn
 			);
 		}
-		public async Task UpsertAsync<T>(IEnumerable<KeyValuePair<string, T>> values, TimeSpan? expiresIn = null)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+
+        public Task UpsertAsync<T>(IEnumerable<KeyValuePair<string, T>> values, TimeSpan? expiresIn = null)
 		{
 			KeyValuePair<RedisKey, RedisValue>[] v = new KeyValuePair<RedisKey, RedisValue>[values.Count()];
 			for(int i = 0, max = values.Count(); i < max; i++)
@@ -179,15 +187,18 @@ namespace Miki.Cache.StackExchange
 					_serializer.Serialize(values.ElementAt(i).Value)
 				);
 			}
-			await _database.StringSetAsync(v);
+            List<Task> t = new List<Task>();
+            t.Add(_database.StringSetAsync(v));
 
 			if (expiresIn.HasValue)
 			{
 				foreach (var kv in values)
 				{
-					await _database.KeyExpireAsync(kv.Key, expiresIn.Value);
+                    t.Add(_database.KeyExpireAsync(kv.Key, expiresIn.Value));
 				}
 			}
+
+            return Task.WhenAll(t);
 		}
 
 		internal RedisKey[] ToRedisKeys(IEnumerable<string> keys)
