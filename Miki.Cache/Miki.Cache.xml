@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Miki.Cache</name>
+    </assembly>
+    <members>
+        <member name="M:Miki.Cache.ExtensionMethods.CreateHashSet``1(Miki.Cache.IExtendedCacheClient,System.String)">
+            <summary>
+            Creates an hash set struct for your cache client, exposing values in a more user-friendly way. 
+            </summary>
+            <typeparam name="T">Type of value you want to store.</typeparam>
+            <param name="cacheClient">The cache client reference created.</param>
+            <param name="key">The key at which the hash set will be stored in the cache.</param>
+        </member>
+        <member name="T:Miki.Cache.IAsyncLock">
+            <summary>
+            Asynchronous lock for distributed systems.
+            </summary>
+        </member>
+        <member name="M:Miki.Cache.IAsyncLock.ReleaseAsync">
+            <summary>
+            Unlocks the lock.
+            </summary>
+        </member>
+        <member name="T:Miki.Cache.ICacheClient">
+            <summary>
+            An implementation of a simple cache client.
+            </summary>
+        </member>
+        <member name="M:Miki.Cache.ICacheClient.ExistsAsync(System.String)">
+            <summary>
+            Checks if the <paramref name="key"/> exists in the cache.
+            </summary>
+        </member>
+        <member name="M:Miki.Cache.ICacheClient.ExistsAsync(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Checks if all <paramref name="keys"/> exists in the cache.
+            </summary>
+            <returns>The amount of keys that returned true.</returns>
+        </member>
+        <member name="M:Miki.Cache.ICacheClient.ExpiresAsync(System.String,System.TimeSpan)">
+            <summary>
+            Sets a cache expiration span on the key.
+            </summary>
+        </member>
+        <member name="M:Miki.Cache.ICacheClient.ExpiresAsync(System.String,System.DateTime)">
+            <summary>
+            Sets a cache expiration date on the key.
+            </summary>
+        </member>
+        <member name="M:Miki.Cache.ICacheClient.GetAsync``1(System.String)">
+            <summary>
+            Gets a value of <typeparamref name="T"/> with <paramref name="key"/> from the cache.
+            </summary>
+        </member>
+        <member name="M:Miki.Cache.ICacheClient.GetAsync``1(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Gets values of type <typeparamref name="T"/> with <paramref name="keys"/> from the cache.
+            </summary>
+        </member>
+        <member name="M:Miki.Cache.ICacheClient.UpsertAsync``1(System.String,``0,System.Nullable{System.TimeSpan})">
+            <summary>
+            Updates or inserts <paramref name="key"/> with a <paramref name="value"/> of type <typeparamref name="T"/>.
+            </summary>
+        </member>
+        <member name="M:Miki.Cache.ICacheClient.UpsertAsync``1(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,``0}},System.Nullable{System.TimeSpan})">
+            <summary>
+            Updates or inserts multuple <paramref name="values"/> of type <typeparamref name="T"/>.
+            </summary>
+        </member>
+        <member name="M:Miki.Cache.ICacheClient.RemoveAsync(System.String)">
+            <summary>
+            Removes a single <paramref name="key"/> from the cache.
+            </summary>
+        </member>
+        <member name="M:Miki.Cache.ICacheClient.RemoveAsync(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Removes multiple <paramref name="keys"/> from the cache.
+            </summary>
+        </member>
+        <member name="T:Miki.Cache.IDistributedLockProvider">
+            <summary>
+            A distributed lock provider to create multi-system locks.
+            </summary>
+        </member>
+        <member name="M:Miki.Cache.IDistributedLockProvider.AcquireLockAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Creates a default distributed lock.
+            </summary>
+        </member>
+        <member name="T:Miki.Cache.IExtendedCacheClient">
+            <summary>
+            A more feature-rich, but harder to implement cache client.
+            </summary>
+        </member>
+        <member name="M:Miki.Cache.IExtendedCacheClient.SortedSetPopAsync``1(System.String,Miki.Cache.Order)">
+            <summary>
+            Removes the first object from either the front or back based on <see cref="T:Miki.Cache.Order"/>.
+            </summary>
+            <param name="key">Collection key.</param>
+            <param name="order"></param>
+        </member>
+        <member name="T:Miki.Cache.Order">
+            <summary>
+            The direction of the iterator to start.
+            </summary>
+        </member>
+        <member name="F:Miki.Cache.Order.Ascending">
+            <summary>
+            Moves from the lowest value, and moves up accordingly.
+            </summary>
+        </member>
+        <member name="F:Miki.Cache.Order.Descending">
+            <summary>
+            Moves from the higherst value, and moves down accordingly.
+            </summary>
+        </member>
+        <member name="T:Miki.Cache.SortedEntry`1">
+            <summary>
+            A value object which has a single entry that is sortable by cache clients implementing this
+            interface.
+            </summary>
+        </member>
+        <member name="P:Miki.Cache.SortedEntry`1.Value">
+            <summary>
+            The value of this object.
+            </summary>
+        </member>
+        <member name="P:Miki.Cache.SortedEntry`1.Score">
+            <summary>
+            The value this will be scored on.
+            </summary>
+        </member>
+    </members>
+</doc>

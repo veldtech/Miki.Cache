@@ -1,9 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Miki.Cache
+﻿namespace Miki.Cache
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    
+    /// <summary>
+    /// An implementation of a simple cache client.
+    /// </summary>
     public interface ICacheClient
     {
         /// <summary>

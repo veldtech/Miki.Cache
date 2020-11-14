@@ -1,22 +1,23 @@
-using Miki.Serialization;
-using Miki.Serialization.Protobuf;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xunit;
-
 namespace Miki.Cache.Tests
 {
-	public class CacheClients
+    using Miki.Serialization;
+    using Miki.Serialization.Protobuf;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Miki.Cache.InMemory;
+    using Xunit;
+    
+    public class CacheClients
 	{
-		private readonly ProtobufSerializer serializer = new ProtobufSerializer();
+		private readonly ISerializer serializer = new ProtobufSerializer();
 
 		[Fact]
 		public async Task InMemory()
 	{
 			// InMemory
 			{
-				var pool = new InMemory.InMemoryCachePool(serializer);
+				var pool = new InMemoryCachePool(serializer);
 				await RunTests(await pool.GetAsync());
 			}
 		}
@@ -99,10 +100,28 @@ namespace Miki.Cache.Tests
 
 				await ex.HashDeleteAsync(hashKey, itemKey);
 
-				Assert.Equal(default(T), await ex.HashGetAsync<T>(hashKey, itemKey));
+				Assert.Equal(default, await ex.HashGetAsync<T>(hashKey, itemKey));
 
 				await ex.RemoveAsync(hashKey);
 
+                string setKey = "test:set";
+
+                await ex.SortedSetUpsertAsync(setKey, "hello", 1);
+
+                await ex.SortedSetUpsertAsync(setKey, new List<SortedEntry<string>>
+                {
+					new SortedEntry<string>
+                    {
+						Score = 2,
+						Value = "world"
+                    }
+                });
+
+                var firstIt = await ex.SortedSetPopAsync<string>(setKey);
+                Assert.Equal("hello", firstIt);
+
+                var secondIt = await ex.SortedSetPopAsync<string>(setKey);
+                Assert.Equal("world", secondIt);
 			}
 		}
 	}

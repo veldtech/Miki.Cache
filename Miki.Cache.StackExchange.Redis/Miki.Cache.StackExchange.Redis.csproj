@@ -1,21 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Velddev</Authors>
     <Company>Velddev</Company>
     <Description>StackExchange.Redis Implementation for Miki.Cache</Description>
-    <Version>2.3.0</Version>
+    <Version>2.5.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="StackExchange.Redis" Version="2.0.513" />
+    <PackageReference Include="Miki.Serialization" Version="0.1.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.1.30" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Miki.Serialization\Miki.Serialization\Miki.Serialization.csproj" />
     <ProjectReference Include="..\Miki.Cache\Miki.Cache.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\" />
   </ItemGroup>
 
 </Project>

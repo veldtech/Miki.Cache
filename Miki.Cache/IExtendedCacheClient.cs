@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Miki.Cache
+﻿namespace Miki.Cache
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    
+    /// <summary>
+    /// A more feature-rich, but harder to implement cache client.
+    /// </summary>
     public interface IExtendedCacheClient : ICacheClient
     {
 		Task HashDeleteAsync(string key, string hashKey);
@@ -26,5 +28,15 @@ namespace Miki.Cache
 		Task HashUpsertAsync<T>(string key, IEnumerable<KeyValuePair<string, T>> values);
 
 		Task<IEnumerable<T>> HashValuesAsync<T>(string key);
-	}
+
+        /// <summary>
+        /// Removes the first object from either the front or back based on <see cref="Order"/>.
+        /// </summary>
+        /// <param name="key">Collection key.</param>
+        /// <param name="order"></param>
+        ValueTask<T> SortedSetPopAsync<T>(string key, Order order = Order.Ascending);
+
+        ValueTask SortedSetUpsertAsync<T>(string key, T value, double score);
+        ValueTask SortedSetUpsertAsync<T>(string key, IEnumerable<SortedEntry<T>> entries);
+    }
 }

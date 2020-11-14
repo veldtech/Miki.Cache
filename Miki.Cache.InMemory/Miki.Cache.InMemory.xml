@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Miki.Cache.InMemory</name>
+    </assembly>
+    <members>
+        <member name="M:Miki.Cache.InMemory.InMemoryAsyncLock.DisposeAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryAsyncLock.ReleaseAsync">
+            <inheritdoc />
+        </member>
+        <member name="T:Miki.Cache.InMemory.InMemoryCacheClient">
+            <summary>
+            InMemory cache client for testing purposes. For real, don't dare to use this in production.
+            </summary>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.ExistsAsync(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.ExistsAsync(System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.ExpiresAsync(System.String,System.TimeSpan)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.ExpiresAsync(System.String,System.DateTime)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.GetAsync``1(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.GetAsync``1(System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.HashDeleteAsync(System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.HashDeleteAsync(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.HashExistsAsync(System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.HashExistsAsync(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.HashGetAllAsync``1(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.HashGetAsync``1(System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.HashGetAsync``1(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.HashKeysAsync(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.HashLengthAsync(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.HashUpsertAsync``1(System.String,System.String,``0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.HashUpsertAsync``1(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,``0}})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.HashValuesAsync``1(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.SortedSetPopAsync``1(System.String,Miki.Cache.Order)">
+            <inheritdoc />
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.SortedSetUpsertAsync``1(System.String,``0,System.Double)">
+            <inheritdoc />
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.SortedSetUpsertAsync``1(System.String,System.Collections.Generic.IEnumerable{Miki.Cache.SortedEntry{``0}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.RemoveAsync(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.RemoveAsync(System.Collections.Generic.IEnumerable{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Miki.Cache.InMemory.InMemoryCacheClient.AcquireLockAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

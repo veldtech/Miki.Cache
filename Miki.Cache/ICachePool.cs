@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Miki.Cache
+﻿namespace Miki.Cache
 {
+    using System;
+    using System.Threading.Tasks;
+
+    [Obsolete("Handle pooling with the provider instead.")]
     public interface ICachePool
     {
 		Task<ICacheClient> GetAsync();

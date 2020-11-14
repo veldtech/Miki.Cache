@@ -1,23 +1,21 @@
-﻿using Miki.Serialization;
-using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Miki.Cache.StackExchange
+﻿namespace Miki.Cache.StackExchange
 {
-	public class StackExchangeCachePool : ICachePool
-	{
-		private readonly ConfigurationOptions _configuration;
-		private readonly ISerializer _serializer;
+    using Miki.Serialization;
+    using System;
+    using System.Threading.Tasks;
+    using global::StackExchange.Redis;
 
-		private Lazy<Task<ICacheClient>> factory;
+    public class StackExchangeCachePool : ICachePool
+	{
+		private readonly ConfigurationOptions configuration;
+		private readonly ISerializer serializer;
+
+		private readonly Lazy<Task<ICacheClient>> factory;
 
 		public StackExchangeCachePool(ISerializer serializer, ConfigurationOptions configuration)
 		{
-			_configuration = configuration;
-			_serializer = serializer;
+			this.configuration = configuration;
+			this.serializer = serializer;
 
 			factory = new Lazy<Task<ICacheClient>>(async () =>
 			{
